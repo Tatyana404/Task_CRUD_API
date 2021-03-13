@@ -1,0 +1,7 @@
+.directory
+.vscode/
+/node_modules/
+.env
+
+
+
