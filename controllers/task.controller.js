@@ -1,63 +1,59 @@
-const { Task } = require("../models/Task");
+const Task = require("../models/Task");
 
 module.exports.createTask = async (req, res) => {
   try {
-    const { body: validatedTask } = req;
+    const { body } = req;
 
-    const task = await new Task(validatedTask);
+    const task = await Task.create(body);
 
-    res.status(201).send(task);
-  } catch (error) {
-    res.status(400).send("CANT CREATE TASK");
-  }
-};
-
-module.exports.getTasks = async (res) => {
-  try {
-    const tasks = await Task.findAll();
-
-    res.status(200).send(tasks);
-  } catch (error) {
-    res.status(404).send("NO TASKS");
-  }
-};
-
-module.exports.getTask = async (req, res) => {
-  try {
-    const {
-      params: { id },
-    } = req;
-    const foundTask = await Task.findOne(id);
-
-    res.status(200).send(foundTask);
-  } catch (error) {
-    res.status(404).send("NO TASK");
+    res.status(201).json(task);
+  } catch {
+    res.status(400).json({ error: "The task could not be created", details: error.toString() });
   }
 };
 
 module.exports.updateTask = async (req, res) => {
   try {
-    const {
-      params: { id },
-      body,
-    } = req;
-    const foundTask = await Task.findOne(id);
-    const updateTask = await foundTask.update(body);
+    const { params: { id }, body } = req;
 
-    res.status(202).send(updateTask);
+    const task = await Task.update(id, body);
+
+    res.status(200).json(task);
   } catch (error) {
-    res.status(400).send("Cant update");
+    res.status(400).json({ error: error.toString() });
+  }
+};
+
+module.exports.getTasks = async (req, res) => {
+  try {
+    const tasks = await Task.getTasks();
+
+    res.status(200).json(tasks);
+  } catch {
+    res.status(404).json({ error: "Error retrieving tasks" });
+  }
+};
+
+module.exports.getTask = async (req, res) => {
+  try {
+    const { params: { id } } = req;
+
+    const task = await Task.getTask(id);
+
+    res.status(200).json(task);
+  } catch (error) {
+    res.status(404).json({ error: error.toString() });
   }
 };
 
 module.exports.deleteTask = async (req, res) => {
   try {
-    const { params } = req;
-    const foundUser = await Task.findOne(params.id);
-    const verdict = await foundUser.delete();
+    const { params: { id } } = req;
 
-    res.send({ verdict });
+    await Task.delete(id);
+
+    res.status(204).send();
   } catch (error) {
-    res.status(400).send("CANT DELETE");
+    res.status(400).json({ error: error.toString() });
   }
 };

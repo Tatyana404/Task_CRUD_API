@@ -1,51 +1,63 @@
+const { v4: uuidv4 } = require("uuid");
+
 const database = new Map();
 
 class Task {
-  constructor({ body, isDone }) {
+  constructor(body) {
     this.createdAt = new Date();
-    this.userId = `${database.size + 1}`;
-    this.isDone = isDone;
+    this.updatedAt = new Date();
+    this.userId = uuidv4();
+    this.isDone = false;
+    this.id = uuidv4();
     this.body = body;
-
-    database.set(this.userId, this);
-
-    return Promise.resolve(this);
   }
 
-  async update(values) {
-    const oldTask = database.get(this.userId);
-    const newTask = new Task({
-      ...oldTask,
-      ...values,
-    });
+  static async create({ body }) {
+    const newTask = new Task(body);
 
-    const idToDelete = newTask.userId;
-
-    newTask.userId = oldTask.userId;
-    newTask.createdAt = oldTask.createdAt;
-    newTask.updatedAt = new Date();
-
-    database.set(oldTask.userId, newTask);
-
-    await Task.deleteById(idToDelete);
+    database.set(newTask.id, newTask);
 
     return newTask;
   }
 
-  async delete() {
-    return database.delete(this.userId);
+  static async update(id, { body, isDone }) {
+    const task = database.get(id);
+
+    if (!task) {
+      throw new Error("Task not found");
+    }
+
+    task.body = body || task.body;
+    task.isDone = isDone || isDone === false ? isDone : task.isDone;
+    task.updatedAt = new Date();
+
+    database.set(id, task);
+
+    return task;
   }
 
-  async deleteById(id) {
-    return database.delete(id);
-  }
-
-  async findOne(id) {
-    return database.get(id);
-  }
-
-  async findAll() {
+  static async getTasks() {
     return [...database.values()];
+  }
+
+  static async getTask(id) {
+    const task = database.get(id);
+
+    if (!task) {
+      throw new Error("Task not found");
+    }
+
+    return task;
+  }
+
+  static async delete(id) {
+    const task = database.get(id);
+
+    if (!task) {
+      throw new Error("Task not found");
+    }
+
+    return database.delete(id);
   }
 }
 

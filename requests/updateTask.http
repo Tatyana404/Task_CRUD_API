@@ -1,7 +1,7 @@
-PUT http://localhost:5000/task/3 HTTP/1.1
+PATCH  http://localhost:5000/api/task/df6043ad-bf30-49d2-937e-16020a50c103 HTTP/1.1
 Content-type: application/json
 
 {
-  "body":"sit amet tellus cras adipiscing enim eu turpis egestas pretium aenean pharetra magna ac placerat",
+  "body":"There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable.",
   "isDone":true
 }
