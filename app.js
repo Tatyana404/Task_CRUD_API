@@ -1,17 +1,19 @@
-const express = require('express')
-const validateBody = require('./middleware/validate.mw')
-const TaskController = require('./controllers/task.controller')
+const bodyParser = require("body-parser");
+const express = require("express");
+require("dotenv").config();
+const controller = require("./controllers/task.controller");
+const validation = require("./middleware/task.validator");
 
-const app = express()
+const app = express();
 
-PORT = 3000
+const port = process.env.PORT || 5000;
 
-app.listen(PORT)
+app.use(bodyParser.json());
 
-const bodyParser = express.json()
+app.get("/tasks", controller.getTasks);
+app.get("/task/:id", controller.getTask);
+app.post("/task", validation, controller.createTask);
+app.put("/task/:id", validation, controller.updateTask);
+app.delete("/task/:id", controller.deleteTask);
 
-app.get('/tasks', TaskController.getTasks)
-app.get('/task/:id', TaskController.getTask)
-app.post('/task', bodyParser, validateBody, TaskController.createTask)
-app.put('/task/:id', bodyParser, validateBody, TaskController.updateTask)
-app.delete('/task/:id', TaskController.deleteTask)
+app.listen(port, () => console.log(`Server has been started on port ${port}`));

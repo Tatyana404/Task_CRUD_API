@@ -1,45 +1,52 @@
-const db = new Map()
+const database = new Map();
 
 class Task {
-  constructor ({ body, isDone }) {
-    this.createdAt = new Date()
-    this.userId = `${db.size + 1}`
-    this.isDone = isDone
-    this.body = body
-    db.set(this.userId, this)
-    return Promise.resolve(this)
+  constructor({ body, isDone }) {
+    this.createdAt = new Date();
+    this.userId = `${database.size + 1}`;
+    this.isDone = isDone;
+    this.body = body;
+
+    database.set(this.userId, this);
+
+    return Promise.resolve(this);
   }
 
-  async update (values) {
-    const oldTask = db.get(this.userId)
-    const newTask = await new Task({
+  async update(values) {
+    const oldTask = database.get(this.userId);
+    const newTask = new Task({
       ...oldTask,
-      ...values
-    })
-    const idToDelete = newTask.userId
-    newTask.userId = oldTask.userId
-    newTask.createdAt = oldTask.createdAt
-    newTask.updatedAt = new Date()
-    db.set(oldTask.userId, newTask)
-    await Task.deleteById(idToDelete)
-    return newTasc
+      ...values,
+    });
+
+    const idToDelete = newTask.userId;
+
+    newTask.userId = oldTask.userId;
+    newTask.createdAt = oldTask.createdAt;
+    newTask.updatedAt = new Date();
+
+    database.set(oldTask.userId, newTask);
+
+    await Task.deleteById(idToDelete);
+
+    return newTask;
   }
 
-  async delete () {
-    return db.delete(this.userId)
+  async delete() {
+    return database.delete(this.userId);
+  }
+
+  async deleteById(id) {
+    return database.delete(id);
+  }
+
+  async findOne(id) {
+    return database.get(id);
+  }
+
+  async findAll() {
+    return [...database.values()];
   }
 }
 
-Task.deleteById = async id => {
-  return db.delete(id)
-}
-
-Task.findOne = async id => {
-  return db.get(id)
-}
-
-Task.findAll = async () => {
-  return [...db.values()]
-}
-
-module.exports = Task
+module.exports = Task;
